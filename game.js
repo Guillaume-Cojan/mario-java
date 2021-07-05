@@ -64,11 +64,11 @@ scene("game", () => {
     const gameLevel = addLevel(map, levelCfg);
 
     const scoreLabel = add([
-        text("score"),
+        text("score:"),
         pos(30, 6),
         layer("ui"),
         {
-            value: "score",
+            value: "score:",
         },
     ]);
 
