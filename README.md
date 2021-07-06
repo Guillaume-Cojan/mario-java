@@ -5,4 +5,4 @@
 
 <p align="center"><img alt="screenshot" src="https://i.imgur.com/ilv9CMK.png" /></p>
 
-<h3><a align="center" src="https://mario-java.netlify.app/" target="blank>👉 Deployed version here  </a></h3>
+<h3 align="center"><a href="https://mario-java.netlify.app/" target="blank">👉 Deployed version here  </a></h3>
