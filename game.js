@@ -88,7 +88,7 @@ scene("game", ({ level, score }) => {
         "*": [sprite("surprise"), solid(), "mushroom-surprise"],
         "}": [sprite("unboxed"), solid()],
         "(": [sprite("pipe"), solid(), scale(2.2), "pipe"],
-        "^": [sprite("evil"), solid(), "dangerous"],
+        "^": [sprite("evil"), solid(), "dangerous", body()],
         "#": [sprite("mushroom"), solid(), "mushroom", body()],
     };
 
