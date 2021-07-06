@@ -6,6 +6,9 @@ kaboom({
     clearColor: [0, 0, 1, 1],
 });
 
+const MOVE_SPEED = 120;
+const JUMP_FORCE = 360;
+
 loadRoot("https://i.imgur.com/");
 loadSprite("coin", "oK9pLe4.png");
 loadSprite("evil", "uMgcPCL.png");
@@ -15,10 +18,10 @@ loadSprite("mario", "FPbuY2w.png");
 loadSprite("mushroom", "oI5WtGI.png");
 loadSprite("surprise", "g0PliBo.png");
 loadSprite("unboxed", "2eLvbFw.png");
-loadSprite("pipe-top-left", "14ECLLo.png");
-loadSprite("pipe-top-right", "14ECLLo.png");
-loadSprite("pipe-bottom-left", "14ECLLo.png");
-loadSprite("pipe-bottom-right", "14ECLLo.png");
+loadSprite("pipe-top-left", "Y8r4Fhh.png");
+loadSprite("pipe-top-right", "Y8r4Fhh.png");
+loadSprite("pipe-bottom-left", "Y8r4Fhh.png");
+loadSprite("pipe-bottom-right", "Y8r4Fhh.png");
 
 scene("game", () => {
     layer(["bg", "obj", "ui"], "obj");
@@ -57,7 +60,7 @@ scene("game", () => {
         ")": [sprite("pipe-bottom-right"), solid()],
         "-": [sprite("pipe-top-left"), solid()],
         "+": [sprite("pipe-top-right"), solid()],
-        "^": [sprite("evil"), solid()],
+        "^": [sprite("evil"), solid(), scale(1.2)],
         "#": [sprite("mushroom"), solid()],
     };
 
@@ -74,16 +77,51 @@ scene("game", () => {
 
     add([text("level" + "1", pos(4, 6))]);
 
+    function big() {
+        let timer = 0;
+        let isBig = false;
+        return {
+            update() {
+                if (isBig) {
+                    timer -= dt();
+                    if (timer <= 0) {
+                        this.smallify();
+                    }
+                }
+            },
+            isBig() {
+                return isBig;
+            },
+            smallify() {
+                this.scale = vec2(2);
+                timer = time;
+                isBig = true;
+            },
+        };
+    }
+
     const player = add([
         sprite("mario"),
         solid(),
+        scale(1.2),
         pos(30, 0),
         body(),
+        big(),
         origin("bot"),
     ]);
 
-    const MOVE_SPEED = 120;
-    const JUMP_FORCE = 400;
+    player.on("headbump", (obj) => {
+        if (obj.is("coin-surprise")) {
+            gameLevel.spawn("$", obj.gridPos.sub(0, 1));
+            destroy(obj);
+            gameLevel.spawn("}", obj.gridPos.sub(0, 0));
+        }
+        if (obj.is("mushroom-surprise")) {
+            gameLevel.spawn("#", obj.gridPos.sub(0, 1));
+            destroy(obj);
+            gameLevel.spawn("}", obj.gridPos.sub(0, 0));
+        }
+    });
 
     keyDown("left", () => {
         player.move(-MOVE_SPEED, 0);
