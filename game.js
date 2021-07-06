@@ -8,11 +8,11 @@ kaboom({
 
 const MOVE_SPEED = 120;
 const ENEMY_SPEED = 10;
-const JUMP_FORCE = 360;
+const JUMP_FORCE = 380;
 const BIG_JUMP_FORCE = 450;
 let CURRENT_JUMP_FORCE = JUMP_FORCE;
 let isJumping = true;
-const FALL_DEATH = 400;
+const FALL_DEATH = 1000;
 
 loadRoot("https://i.imgur.com/");
 loadSprite("coin", "oK9pLe4.png");
@@ -54,22 +54,28 @@ scene("game", ({ level, score }) => {
             "                                                ",
             "                                                ",
             "                                                ",
-            "          %                                     ",
             "                                                ",
             "                                                ",
             "                                                ",
-            "        =====       %                           ",
             "                                                ",
             "                                                ",
             "                                                ",
-            "                 =====                          ",
-            "                               $                ",
-            "         =*=%=                                 =",
-            "     %                                         =",
-            "                             ===               =",
-            "                                      (        =",
-            "=                ^      ^                      =",
-            "=======  =======================    ============",
+            "                                                ",
+            "=            ^                                  ",
+            "=        =====                                  ",
+            "=                                               ",
+            "=                                              =",
+            "=                                          (   =",
+            "=                                              =",
+            "=                                      =========",
+            "=                                  ^            ",
+            "==========                      ====            ",
+            "                                           =    ",
+            "                                           =    ",
+            "                                       =====    ",
+            "                                                ",
+            "            =========================           ",
+            "                                                ",
         ],
     ];
 
@@ -82,7 +88,7 @@ scene("game", ({ level, score }) => {
         "*": [sprite("surprise"), solid(), "mushroom-surprise"],
         "}": [sprite("unboxed"), solid()],
         "(": [sprite("pipe"), solid(), scale(2.2), "pipe"],
-        "^": [sprite("evil"), solid(), scale(1.2), "dangerous"],
+        "^": [sprite("evil"), solid(), "dangerous", body()],
         "#": [sprite("mushroom"), solid(), "mushroom", body()],
     };
 
@@ -133,7 +139,7 @@ scene("game", ({ level, score }) => {
         sprite("mario"),
         solid(),
         scale(1.4),
-        pos(30, 0),
+        pos(40, 0),
         body(),
         big(),
         origin("bot"),
@@ -222,6 +228,14 @@ scene("lose", ({ score }) => {
         origin("center"),
         pos(width() / 2, height() / 2),
     ]);
+    add([
+        text("Press SPACE to play again...", 16),
+        origin("center"),
+        pos(width() / 2, height() / 1.5),
+    ]);
+    keyDown("space", () => {
+        go("game", { level: 0, score: 0 });
+    });
 });
 
 start("game", { level: 0, score: 0 });
