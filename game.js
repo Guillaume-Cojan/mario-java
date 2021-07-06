@@ -61,7 +61,7 @@ scene("game", () => {
         "-": [sprite("pipe-top-left"), solid()],
         "+": [sprite("pipe-top-right"), solid()],
         "^": [sprite("evil"), solid(), scale(1.2)],
-        "#": [sprite("mushroom"), solid()],
+        "#": [sprite("mushroom"), solid(), "mushroom", body()],
     };
 
     const gameLevel = addLevel(map, levelCfg);
@@ -109,6 +109,10 @@ scene("game", () => {
         big(),
         origin("bot"),
     ]);
+
+    action("mushroom", (m) => {
+        m.move(10, 0);
+    });
 
     player.on("headbump", (obj) => {
         if (obj.is("coin-surprise")) {
