@@ -7,9 +7,12 @@ kaboom({
 });
 
 const MOVE_SPEED = 120;
-const JUMP_FORCE = 330;
+const ENEMY_SPEED = 10;
+const JUMP_FORCE = 360;
 const BIG_JUMP_FORCE = 450;
 let CURRENT_JUMP_FORCE = JUMP_FORCE;
+let isJumping = true;
+const FALL_DEATH = 400;
 
 loadRoot("https://i.imgur.com/");
 loadSprite("coin", "oK9pLe4.png");
@@ -25,7 +28,7 @@ loadSprite("pipe-top-right", "Y8r4Fhh.png");
 loadSprite("pipe-bottom-left", "Y8r4Fhh.png");
 loadSprite("pipe-bottom-right", "Y8r4Fhh.png");
 
-scene("game", () => {
+scene("game", ({ score }) => {
     layer(["bg", "obj", "ui"], "obj");
 
     const map = [
@@ -36,14 +39,14 @@ scene("game", () => {
         "                                                ",
         "                                                ",
         "                                                ",
-        "          =====     %                           ",
+        "        =====       %                           ",
         "                                                ",
         "                                                ",
         "                                                ",
         "                 =====                          ",
-        "                                                ",
-        "                                               =",
-        "     %   =*=%=                                 =",
+        "                               $                ",
+        "         =*=%=                                 =",
+        "     %                                         =",
         "                             ===               =",
         "                                      (        =",
         "=                ^      ^                      =",
@@ -62,18 +65,18 @@ scene("game", () => {
         ")": [sprite("pipe-bottom-right"), solid()],
         "-": [sprite("pipe-top-left"), solid()],
         "+": [sprite("pipe-top-right"), solid()],
-        "^": [sprite("evil"), solid(), scale(1.2)],
+        "^": [sprite("evil"), solid(), scale(1.2), "dangerous"],
         "#": [sprite("mushroom"), solid(), "mushroom", body()],
     };
 
     const gameLevel = addLevel(map, levelCfg);
 
     const scoreLabel = add([
-        text("score:"),
+        text(`score: ${score}`),
         pos(30, 6),
         layer("ui"),
         {
-            value: "score:",
+            value: score,
         },
     ]);
 
@@ -144,7 +147,26 @@ scene("game", () => {
     player.collides("coin", (c) => {
         destroy(c);
         scoreLabel.value++;
-        scoreLabel.text = scoreLabel.value;
+        scoreLabel.text = `score: ${scoreLabel.value}`;
+    });
+
+    action("dangerous", (d) => {
+        d.move(-ENEMY_SPEED, 0);
+    });
+
+    player.collides("dangerous", (d) => {
+        if (isJumping) {
+            destroy(d);
+        } else {
+            go("lose", { score: scoreLabel.value });
+        }
+    });
+
+    player.action(() => {
+        camPos(player.pos);
+        if (player.pos.y >= FALL_DEATH) {
+            go("lose", { score: scoreLabel.value });
+        }
     });
 
     keyDown("left", () => {
@@ -153,11 +175,27 @@ scene("game", () => {
     keyDown("right", () => {
         player.move(MOVE_SPEED, 0);
     });
+
+    player.action(() => {
+        if (player.grounded()) {
+            isJumping = false;
+        }
+    });
+
     keyPress("space", () => {
         if (player.grounded()) {
+            isJumping = true;
             player.jump(CURRENT_JUMP_FORCE);
         }
     });
 });
 
-start("game");
+scene("lose", ({ score }) => {
+    add([
+        text(`YOU LOSE! Your score: ${score}`, 32),
+        origin("center"),
+        pos(width() / 2, height() / 2),
+    ]);
+});
+
+start("game", { score: 0 });
