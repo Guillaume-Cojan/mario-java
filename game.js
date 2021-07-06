@@ -7,7 +7,9 @@ kaboom({
 });
 
 const MOVE_SPEED = 120;
-const JUMP_FORCE = 360;
+const JUMP_FORCE = 330;
+const BIG_JUMP_FORCE = 450;
+let CURRENT_JUMP_FORCE = JUMP_FORCE;
 
 loadRoot("https://i.imgur.com/");
 loadSprite("coin", "oK9pLe4.png");
@@ -52,7 +54,7 @@ scene("game", () => {
         width: 20,
         height: 20,
         "=": [sprite("block"), solid()],
-        $: [sprite("coin")],
+        $: [sprite("coin"), "coin"],
         "%": [sprite("surprise"), solid(), "coin-surprise"],
         "*": [sprite("surprise"), solid(), "mushroom-surprise"],
         "}": [sprite("unboxed"), solid()],
@@ -83,6 +85,7 @@ scene("game", () => {
         return {
             update() {
                 if (isBig) {
+                    CURRENT_JUMP_FORCE = BIG_JUMP_FORCE;
                     timer -= dt();
                     if (timer <= 0) {
                         this.smallify();
@@ -93,6 +96,12 @@ scene("game", () => {
                 return isBig;
             },
             smallify() {
+                CURRENT_JUMP_FORCE = JUMP_FORCE;
+                this.scale = vec2(1.4);
+                timer = 0;
+                isBig = false;
+            },
+            biggify(time) {
                 this.scale = vec2(2);
                 timer = time;
                 isBig = true;
@@ -103,7 +112,7 @@ scene("game", () => {
     const player = add([
         sprite("mario"),
         solid(),
-        scale(1.2),
+        scale(1.4),
         pos(30, 0),
         body(),
         big(),
@@ -111,7 +120,7 @@ scene("game", () => {
     ]);
 
     action("mushroom", (m) => {
-        m.move(10, 0);
+        m.move(15, 0);
     });
 
     player.on("headbump", (obj) => {
@@ -127,6 +136,17 @@ scene("game", () => {
         }
     });
 
+    player.collides("mushroom", (m) => {
+        destroy(m);
+        player.biggify(10);
+    });
+
+    player.collides("coin", (c) => {
+        destroy(c);
+        scoreLabel.value++;
+        scoreLabel.text = scoreLabel.value;
+    });
+
     keyDown("left", () => {
         player.move(-MOVE_SPEED, 0);
     });
@@ -135,7 +155,7 @@ scene("game", () => {
     });
     keyPress("space", () => {
         if (player.grounded()) {
-            player.jump(JUMP_FORCE);
+            player.jump(CURRENT_JUMP_FORCE);
         }
     });
 });
