@@ -23,34 +23,54 @@ loadSprite("mario", "FPbuY2w.png");
 loadSprite("mushroom", "oI5WtGI.png");
 loadSprite("surprise", "g0PliBo.png");
 loadSprite("unboxed", "2eLvbFw.png");
-loadSprite("pipe-top-left", "Y8r4Fhh.png");
-loadSprite("pipe-top-right", "Y8r4Fhh.png");
-loadSprite("pipe-bottom-left", "Y8r4Fhh.png");
-loadSprite("pipe-bottom-right", "Y8r4Fhh.png");
+loadSprite("pipe", "Y8r4Fhh.png");
 
-scene("game", ({ score }) => {
+scene("game", ({ level, score }) => {
     layer(["bg", "obj", "ui"], "obj");
 
-    const map = [
-        "                                                ",
-        "                                                ",
-        "                                                ",
-        "          %                                     ",
-        "                                                ",
-        "                                                ",
-        "                                                ",
-        "        =====       %                           ",
-        "                                                ",
-        "                                                ",
-        "                                                ",
-        "                 =====                          ",
-        "                               $                ",
-        "         =*=%=                                 =",
-        "     %                                         =",
-        "                             ===               =",
-        "                                      (        =",
-        "=                ^      ^                      =",
-        "=======  =======================    ============",
+    const maps = [
+        [
+            "                                                ",
+            "                                                ",
+            "                                                ",
+            "          %                                     ",
+            "                                                ",
+            "                                                ",
+            "                                                ",
+            "        =====       %                           ",
+            "                                                ",
+            "                                                ",
+            "                                                ",
+            "                 =====                          ",
+            "                               $                ",
+            "         =*=%=                                 =",
+            "     %                                         =",
+            "                             ===               =",
+            "                                      (        =",
+            "=                ^      ^                      =",
+            "=======  =======================    ============",
+        ],
+        [
+            "                                                ",
+            "                                                ",
+            "                                                ",
+            "          %                                     ",
+            "                                                ",
+            "                                                ",
+            "                                                ",
+            "        =====       %                           ",
+            "                                                ",
+            "                                                ",
+            "                                                ",
+            "                 =====                          ",
+            "                               $                ",
+            "         =*=%=                                 =",
+            "     %                                         =",
+            "                             ===               =",
+            "                                      (        =",
+            "=                ^      ^                      =",
+            "=======  =======================    ============",
+        ],
     ];
 
     const levelCfg = {
@@ -61,26 +81,23 @@ scene("game", ({ score }) => {
         "%": [sprite("surprise"), solid(), "coin-surprise"],
         "*": [sprite("surprise"), solid(), "mushroom-surprise"],
         "}": [sprite("unboxed"), solid()],
-        "(": [sprite("pipe-bottom-left"), solid(), scale(2.2)],
-        ")": [sprite("pipe-bottom-right"), solid()],
-        "-": [sprite("pipe-top-left"), solid()],
-        "+": [sprite("pipe-top-right"), solid()],
+        "(": [sprite("pipe"), solid(), scale(2.2), "pipe"],
         "^": [sprite("evil"), solid(), scale(1.2), "dangerous"],
         "#": [sprite("mushroom"), solid(), "mushroom", body()],
     };
 
-    const gameLevel = addLevel(map, levelCfg);
+    const gameLevel = addLevel(maps[level], levelCfg);
 
     const scoreLabel = add([
-        text(`score: ${score}`),
-        pos(30, 6),
+        text(`Score: ${score}`),
+        pos(10, 165),
         layer("ui"),
         {
             value: score,
         },
     ]);
 
-    add([text("level" + "1", pos(4, 6))]);
+    add([text("Level: " + parseInt(level + 1)), pos(10, 150)]);
 
     function big() {
         let timer = 0;
@@ -169,6 +186,15 @@ scene("game", ({ score }) => {
         }
     });
 
+    player.collides("pipe", () => {
+        keyPress("down", () => {
+            go("game", {
+                level: (level + 1) % maps.length,
+                score: scoreLabel.value,
+            });
+        });
+    });
+
     keyDown("left", () => {
         player.move(-MOVE_SPEED, 0);
     });
@@ -198,4 +224,4 @@ scene("lose", ({ score }) => {
     ]);
 });
 
-start("game", { score: 0 });
+start("game", { level: 0, score: 0 });
